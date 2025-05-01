@@ -14,6 +14,12 @@ export const routes: Routes = [
     },
     {
         path:'',
-        loadComponent: () => import('./pages/login/login.component').then((com) => com.LoginComponent)
+        redirectTo: '/chat',
+        pathMatch: 'full'
+    },
+    {
+        path:"**",
+        redirectTo: '/chat'
     }
 ];
+

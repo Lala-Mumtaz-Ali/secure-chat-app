@@ -3,35 +3,111 @@
         <h3 class="mb-3">Supa Chat
             <button (click)="onLogOut()" class="btn btn-secondary" style="float: right;">Logout</button>
         </h3>
-        <div class="card">
+
+        <!-- User List -->
+        <div class="row mb-3" *ngIf="!activeConversationId">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Start a conversation</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li *ngFor="let user of users"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                (click)="startConversation(user.id)">
+                                <div>
+                                    <img *ngIf="user.avatar_url" [src]="user.avatar_url" class="rounded-circle mr-1"
+                                        alt="User avatar" width="40" height="40">
+                                    <span *ngIf="!user.avatar_url" class="avatar">{{ user.display_name?.charAt(0) || 'U'
+                                        }}</span>
+                                    <span class="ml-2">{{ user.display_name || user.email }}</span>
+                                </div>
+                                <i class="bi bi-chat-dots"></i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations List -->
+        <div class="row mb-3" *ngIf="!activeConversationId && conversations.length > 0">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Your conversations</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li *ngFor="let conv of conversations"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                (click)="openConversation(conv.conversation_id)">
+                                <div>
+                                    <span class="avatar">{{ getOtherUserName(conv).charAt(0) || 'U' }}</span>
+                                    <span class="ml-2">{{ getOtherUserName(conv) }}</span>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">{{ getConversationLastTime(conv) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="card" *ngIf="activeConversationId">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="backToList()">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+                    <span>Chat with {{ activeChatPartnerName }}</span>
+                </div>
+                <div>
+                    <span class="badge bg-success">Encrypted</span>
+                </div>
+            </div>
             <div>
-
-                <div class="col-12 col-lg-12 col-xl-12">
+                <div class="col-12">
                     <div class="position-relative">
-                        <div class="chat-messages p-4">
-                            <div class="chat-message-left pb-4">
-                                <div class="me-5">
-                                    <img src="https://lh3.googleusercontent.com/a/ACg8ocK-ar4W2f4htzFAf8dE1wTgM_JpQ7JgP-kcpSMK2StHAWxLvBDo=s96-c"
-                                        class="rounded-circle mr-1" alt="Sharon Doe" width="40" height="40">
-                                    <div class="text-muted small text-nowrap mt-2">5:54 am</div>
+                        <div class="chat-messages p-4" #scrollContainer>
+                            <div *ngFor="let message of messages" [ngClass]="{'chat-message-left pb-4': message.sender_id !== currentUserId, 
+                                            'chat-message-right pb-4': message.sender_id === currentUserId}">
+                                <div
+                                    [ngClass]="{'me-5': message.sender_id !== currentUserId, 'ms-5': message.sender_id === currentUserId}">
+                                    <img *ngIf="message.profiles?.avatar_url" [src]="message.profiles.avatar_url"
+                                        class="rounded-circle mr-1" alt="User" width="40" height="40">
+                                    <span *ngIf="!message.profiles?.avatar_url" class="avatar">
+                                        {{ message.profiles?.display_name?.charAt(0) || 'U' }}
+                                    </span>
+                                    <div class="text-muted small text-nowrap mt-2">
+                                        {{ message.created_at | date:'shortTime' }}
+                                    </div>
                                 </div>
-                                <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-                                    <div class="font-weight-bold mb-1">Sharon Doe</div>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquid at ullam reiciendis
-                                    consequatur quis
-                                    similique ea sapiente, voluptatem voluptate quia magnam a non corrupti unde
-                                    accusantium maiores?
-                                    Explicabo, maiores inventore!
+                                <div class="flex-shrink-1"
+                                    [ngClass]="{'bg-light rounded py-2 px-3 ml-3': message.sender_id !== currentUserId,
+                                                                       'bg-primary text-white rounded py-2 px-3 mr-3': message.sender_id === currentUserId}">
+                                    <div class="font-weight-bold mb-1">
+                                        {{ message.profiles?.display_name || 'Unknown' }}
+                                    </div>
+                                    {{ message.content }}
+                                </div>
+                            </div>
 
-                                </div>
+                            <div *ngIf="messages.length === 0" class="text-center text-muted my-5">
+                                <p>No messages yet. Start the conversation!</p>
                             </div>
                         </div>
                     </div>
                     <div class="flex-grow-0 py-3 px-4 border-top">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Type your message">
-                            <button class="btn btn-primary">Send</button>
-                        </div>
+                        <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+                            <div class="input-group">
+                                <input type="text" class="form-control" formControlName="message"
+                                    placeholder="Type your message">
+                                <button class="btn btn-primary" [disabled]="messageForm.invalid">Send</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
