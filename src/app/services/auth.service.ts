@@ -1,4 +1,4 @@
-import { inject, Inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment.development';
 import { Router } from '@angular/router';
@@ -11,14 +11,14 @@ export class AuthService {
   private supabase!: SupabaseClient;
   private router = inject(Router);
   private _ngZone = inject(NgZone);
-  
-  // Observable for current user
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
     this.supabase = createClient(
-      environment.supabaseURL, environment.supbaseAnoneKey
+      environment.supabaseURL,
+      environment.supbaseAnoneKey
     );
 
     this.initializeUser();
@@ -30,10 +30,9 @@ export class AuthService {
       if (session?.user) {
         this.currentUserSubject.next(session.user);
         localStorage.setItem('session', JSON.stringify(session.user));
-        
-        // Create or update user profile on login
+
         this.createUserProfile(session.user);
-        
+
         this._ngZone.run(() => {
           this.router.navigate(['/chat']);
         });
@@ -44,8 +43,8 @@ export class AuthService {
     });
   }
 
+  // Restore user session from Supabase or localStorage
   private async initializeUser() {
-    // Check if user is already logged in
     const { data } = await this.supabase.auth.getSession();
     if (data.session?.user) {
       this.currentUserSubject.next(data.session.user);
@@ -62,8 +61,8 @@ export class AuthService {
     }
   }
 
+  // Create or update user profile in the Supabase "profiles" table
   private async createUserProfile(user: User) {
-    // Insert or update user profile in the profiles table
     const { error } = await this.supabase
       .from('profiles')
       .upsert({
@@ -78,20 +77,24 @@ export class AuthService {
     }
   }
 
+  // Get Supabase client instance
   get supabaseClient(): SupabaseClient {
     return this.supabase;
   }
 
+  // Check if user session exists in localStorage
   get stillSignedIn(): boolean {
     const user = localStorage.getItem('session');
     return user !== null && user !== 'undefined';
   }
 
+  // Get the currently authenticated user
   async getCurrentUser(): Promise<User | null> {
     const { data } = await this.supabase.auth.getUser();
     return data.user;
   }
 
+  // Sign in using Google OAuth provider
   async signWithGoogle() {
     await this.supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -101,6 +104,7 @@ export class AuthService {
     });
   }
 
+  // Sign out the user and clear session
   async signOut() {
     await this.supabase.auth.signOut();
     localStorage.removeItem('session');
@@ -108,6 +112,7 @@ export class AuthService {
     return this.router.navigate(['/login']);
   }
 
+  // Subscribe to authentication state changes
   getAuthChanges() {
     return this.supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {

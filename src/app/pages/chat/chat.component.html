@@ -1,6 +1,6 @@
 <main>
     <div class="container">
-        <h3 class="mb-3">Supa Chat
+        <h3 class="mb-3">Secure-Chat-Application
             <button (click)="onLogOut()" class="btn btn-secondary" style="float: right;">Logout</button>
         </h3>
 
@@ -59,8 +59,12 @@
         <div class="card" *ngIf="activeConversationId">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <button class="btn btn-sm btn-outline-secondary me-2" (click)="backToList()">
-                        <i class="bi bi-arrow-left"></i>
+                    <button (click)="backToList()" aria-label="Back" class="border-0 bg-transparent p-0 me-2"
+                        style="width: 32px; height: 32px;">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </button>
                     <span>Chat with {{ activeChatPartnerName }}</span>
                 </div>
