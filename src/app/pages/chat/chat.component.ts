@@ -7,9 +7,6 @@ import { MessageService } from '../../services/message.service';
 import { CryptoService } from '../../services/crypto.service';
 import { Subscription } from 'rxjs';
 
-
-
-
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -98,16 +95,17 @@ export class ChatComponent implements OnInit, OnDestroy {
   async openConversation(conversationId: string) {
     this.activeConversationId = conversationId;
     
-    // Get encryption key or generate if not exist
-    let key = this.cryptoService.getConversationKey(conversationId);
-    if (!key) {
+    let key = await this.cryptoService.getConversationKey(conversationId);
+    if(!key){
+      console.log("Error finding the encryption key, now generating new one");
       key = this.cryptoService.generateEncryptionKey();
-      this.cryptoService.storeConversationKey(conversationId, key);
+      await this.cryptoService.storeConversationKey(conversationId, key);
     }
-    
+    console.log("This is the key generate for this user", this.currentUserId," the key: ", key);
+
+
     // Get participants for display name
     const participants = await this.messageService.getConversationParticipants(conversationId);
-    // Log the participants to understand the structure
     console.log('Participants:', participants);
     
     // Find other user (not current user)

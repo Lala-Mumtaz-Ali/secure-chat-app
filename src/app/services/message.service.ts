@@ -89,10 +89,12 @@ export class MessageService {
       return null;
     }
     
+    const key = this.cryptoService.generateEncryptionKey();
+
     // Add participants
     const participants = [
-      { conversation_id: conversation.id, user_id: currentUser.id },
-      { conversation_id: conversation.id, user_id: otherUserId }
+      { conversation_id: conversation.id, user_id: currentUser.id, other_user_id: otherUserId },
+      { conversation_id: conversation.id, user_id: otherUserId, other_user_id: currentUser.id }
     ];
     
     const { error: participantsError } = await this.supabase
@@ -105,8 +107,7 @@ export class MessageService {
     }
     
     // Generate and store encryption key for this conversation
-    const key = this.cryptoService.generateEncryptionKey();
-    this.cryptoService.storeConversationKey(conversation.id, key);
+    await this.cryptoService.storeConversationKey(conversation.id, key)
     
     await this.loadConversations();
     return conversation.id;
@@ -175,7 +176,7 @@ export class MessageService {
     if (!currentUser) return null;
     
     // Get encryption key for this conversation
-    const key = this.cryptoService.getConversationKey(conversationId);
+    const key = await this.cryptoService.getConversationKey(conversationId);
     if (!key) {
       console.error('No encryption key found for conversation');
       return null;
@@ -235,7 +236,7 @@ export class MessageService {
   // Load messages for a conversation
   async loadMessages(conversationId: string) {
     // Get encryption key
-    const key = this.cryptoService.getConversationKey(conversationId);
+    const key = await this.cryptoService.getConversationKey(conversationId);
     if (!key) {
       console.error('No encryption key found for conversation');
       this.messagesSubject.next([]);
@@ -261,21 +262,15 @@ export class MessageService {
     // Decrypt messages
     const decryptedMessages = data.map(msg => {
       try {
-        const decryptedContent = this.cryptoService.decryptMessage(
-          msg.encrypted_content,
-          msg.iv,
-          key
-        );
+        const decryptedContent = this.cryptoService.decryptMessage(msg.encrypted_content,msg.iv,key);
         
         return {
-          ...msg,
-          content: decryptedContent
+          ...msg, content: decryptedContent
         };
       } catch (e) {
         console.error('Error decrypting message:', e);
         return {
-          ...msg,
-          content: '[Encrypted message]'
+          ...msg, content: '[Encrypted message]'
         };
       }
     });
