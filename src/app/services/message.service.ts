@@ -77,7 +77,7 @@ export class MessageService {
     const currentUser = await this.auth.getCurrentUser();
     if (!currentUser) return null;
     
-    // Create conversation
+    // creating
     const { data: conversation, error: conversationError } = await this.supabase
       .from('conversations')
       .insert({})
@@ -91,7 +91,7 @@ export class MessageService {
     
     const key = this.cryptoService.generateEncryptionKey();
 
-    // Add participants
+    //add participants
     const participants = [
       { conversation_id: conversation.id, user_id: currentUser.id, other_user_id: otherUserId },
       { conversation_id: conversation.id, user_id: otherUserId, other_user_id: currentUser.id }
@@ -106,19 +106,18 @@ export class MessageService {
       return null;
     }
     
-    // Generate and store encryption key for this conversation
     await this.cryptoService.storeConversationKey(conversation.id, key)
     
     await this.loadConversations();
     return conversation.id;
   }
   
-  // Find or create conversation with user
+  
   async findOrCreateConversation(otherUserId: string) {
     const currentUser = await this.auth.getCurrentUser();
     if (!currentUser) return null;
     
-    // Check if conversation exists
+    //checking if convo exists
     const { data, error } = await this.supabase
       .from('conversation_participants')
       .select(`
@@ -133,7 +132,7 @@ export class MessageService {
     }
     
     if (data && data.length > 0) {
-      // Check if any of these conversations include the other user
+      //check if any of these convos include the other user
       for (const conv of data) {
         const { data: participants, error: participantsError } = await this.supabase
           .from('conversation_participants')
@@ -142,17 +141,17 @@ export class MessageService {
           .eq('user_id', otherUserId);
           
         if (!participantsError && participants && participants.length > 0) {
-          // Found existing conversation
+          //found convo
           return conv.conversation_id;
         }
       }
     }
     
-    // No conversation found, create new one
+    //no convo found so we create a new one
     return this.createConversation(otherUserId);
   }
   
-  // Get conversation participants
+  
   async getConversationParticipants(conversationId: string) {
     const { data, error } = await this.supabase
       .from('conversation_participants')

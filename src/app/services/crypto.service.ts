@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import * as CryptoJS from 'crypto-js';
 import { AuthService } from './auth.service';
-import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +10,7 @@ export class CryptoService {
 
   private auth = inject(AuthService);
   private supabase = this.auth.supabaseClient;
-  // Generate a random encryption key
+  
   generateEncryptionKey(): string {
     const keyBytes = CryptoJS.lib.WordArray.random(32); // 256-bit key
     return keyBytes.toString(CryptoJS.enc.Base64);
@@ -142,7 +141,7 @@ export class CryptoService {
   
   // Encrypt message with AES
   encryptMessage(message: string, key: string): { ciphertext: string, iv: string } {
-    const iv = CryptoJS.lib.WordArray.random(16); // Generate random IV
+    const iv = CryptoJS.lib.WordArray.random(16);
     
     const encrypted = CryptoJS.AES.encrypt(message, key, {
       iv: iv,
