@@ -1,23 +1,88 @@
-.login-block {
-    width: 300px;
-    margin: 0 auto;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+.login-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(120deg, #3a8ef6, #6b73ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+}
+
+.background-overlay {
+  position: absolute;
+  width: 180%;
+  height: 180%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: pulse 6s ease-in-out infinite;
+  z-index: 1;
+  transform: rotate(45deg);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1) rotate(45deg);
   }
-  
-  .btn {
-    border-radius: 2px;
-    text-transform: capitalize;
-    font-size: 15px;
-    padding: 10px 19px;
-    cursor: pointer
+  50% {
+    transform: scale(1.05) rotate(45deg);
   }
-  
-  
-  .btn-google {
-    color: #545454;
-    background-color: #ffffff;
-    box-shadow: 0 1px 2px 1px #ddd;
-  }
+}
+
+.login-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+  padding: 0 20px;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  padding: 50px 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.app-title {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 30px;
+  color: #e0e0e0;
+}
+
+.btn-google {
+  background-color: #ffffff;
+  color: #333;
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 30px;
+  width: 100%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-google:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.btn-google img {
+  width: 22px;
+  height: 22px;
+}

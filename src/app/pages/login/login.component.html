@@ -1,13 +1,14 @@
-<section class="login-block">
-    <div class="container">
-
-        <div class="row">
-            <div class="col-md-12">
-                <button (click)="onLogin()" class="btn btn-lg btn-google btn-block text-uppercase btn-outline"><img
-                        src="https://res.cloudinary.com/dz4tt9omp/image/upload/v1712537582/google-logo.png"> Sign in
-                    Using Google
-                </button>
-            </div>
+<section class="login-wrapper">
+    <div class="background-overlay"></div>
+    <div class="login-container">
+        <div class="login-card">
+            <h1 class="app-title">🔒 Secure Chat</h1>
+            <p class="subtitle">Private. Encrypted. Yours.</p>
+            <button (click)="onLogin()" class="btn btn-google">
+                <img src="https://res.cloudinary.com/dz4tt9omp/image/upload/v1712537582/google-logo.png"
+                    alt="Google Logo" />
+                Sign in Using Google
+            </button>
         </div>
     </div>
 </section>
